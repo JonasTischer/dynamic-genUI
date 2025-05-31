@@ -10,16 +10,39 @@ Today's AI interfaces are predominantly text-based and feel clunky compared to t
 
 ## Demos
 
-This repository contains three progressive demos:
+This repository contains four progressive demos:
 
 1. [**Weather Demo**](https://github.com/kafkasl/genUI/tree/main/weather) - A basic chatbot enhanced with visual weather cards
 2. [**Your Color**](https://github.com/kafkasl/genUI/tree/main/your_color) - An interactive mindfulness experience using button-based navigation
 3. [**HAL 9000**](https://github.com/kafkasl/genUI/tree/main/hal9000) - A complete interactive experience combining text chat and button navigation
+4. [**Dynamic UI Generator**](https://github.com/kafkasl/genUI/tree/main/dynamic_ui) - Generates different UI components on the fly based on user queries
 
 Try the live demos:
-- [Weather Demo](https://fasthtml-app-cbd32e55.pla.sh/) 
+- [Weather Demo](https://fasthtml-app-cbd32e55.pla.sh/)
 - [Your Color Mindfulness](https://fasthtml-app-68e1764d.pla.sh/)
 - [HAL 9000 Demo](https://fasthtml-app-6e583cfc.pla.sh/)
+
+## New: Dynamic UI Generator
+
+The **Dynamic UI Generator** is the latest addition to this repository. It demonstrates how to create UI components dynamically based on natural language queries. Instead of predefined templates, the AI analyzes user requests and generates appropriate interactive components.
+
+### Examples:
+- "Who is the best soccer player?" → Select dropdown with player options
+- "Rate your experience" → Star rating component
+- "How much should I budget?" → Slider with dollar amounts
+- "Which languages do you know?" → Checkbox list
+- "Pick your favorite color" → Color picker interface
+
+### Supported Component Types:
+- Select Dropdowns
+- Radio Buttons
+- Checkbox Lists
+- Sliders
+- Star Ratings
+- Button Grids
+- Text Inputs
+- Toggle Switches
+- Color Pickers
 
 ## Installation
 
@@ -43,7 +66,7 @@ To run these demos locally:
 
 Each demo consists of just three files:
 - `main.py` - The application code
-- `style.css` - Styling 
+- `style.css` - Styling
 - `requirements.txt` - Dependencies
 
 ## Key Concepts
@@ -54,6 +77,7 @@ These demos showcase several important concepts:
 2. **The Feedback Loop** - How user interactions flow back to the LLM, which generates new UI components
 3. **Eliminating Contract Coupling** - How the hypermedia approach removes the need for predefined frontend templates
 4. **Progressive Enhancement** - From static visual elements to fully interactive experiences
+5. **Dynamic Component Generation** - Creating appropriate UI components based on user intent
 
 ## Article
 
@@ -69,4 +93,4 @@ To deploy your own version:
 
 ## License
 
-[MIT License](LICENSE) 
+[MIT License](LICENSE)

@@ -1,4 +1,0 @@
-python-fasthtml
-monsterUI
-fastcore
-claudette
