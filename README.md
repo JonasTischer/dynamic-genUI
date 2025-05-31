@@ -5,7 +5,7 @@ This repository contains demos showcasing how to build interactive Generative UI
 ## Video
 ## 🎬 Live Demo
 
-(https://www.loom.com/share/4bf6abf7ae4a4ea48265a9dde305a6a0?sid=ef24c794-7ce4-4392-b3e1-d8d545bdb9cf)
+https://www.loom.com/share/4bf6abf7ae4a4ea48265a9dde305a6a0?sid=ef24c794-7ce4-4392-b3e1-d8d545bdb9cf)
 
 
 
