@@ -8,41 +8,11 @@ Generative UI extends the concept of Generative AI beyond text and images to cre
 
 Today's AI interfaces are predominantly text-based and feel clunky compared to traditional apps. These demos show how we can transition from basic text-based chat into rich interactive experiences with buttons and visual elements - all in less than 150 lines of code using FastHTML and Answer.ai libraries.
 
-## Demos
+## Demo
 
-This repository contains four progressive demos:
+This repository contains one main demo
 
-1. [**Weather Demo**](https://github.com/kafkasl/genUI/tree/main/weather) - A basic chatbot enhanced with visual weather cards
-2. [**Your Color**](https://github.com/kafkasl/genUI/tree/main/your_color) - An interactive mindfulness experience using button-based navigation
-3. [**HAL 9000**](https://github.com/kafkasl/genUI/tree/main/hal9000) - A complete interactive experience combining text chat and button navigation
-4. [**Dynamic UI Generator**](https://github.com/kafkasl/genUI/tree/main/dynamic_ui) - Generates different UI components on the fly based on user queries
-
-Try the live demos:
-- [Weather Demo](https://fasthtml-app-cbd32e55.pla.sh/)
-- [Your Color Mindfulness](https://fasthtml-app-68e1764d.pla.sh/)
-- [HAL 9000 Demo](https://fasthtml-app-6e583cfc.pla.sh/)
-
-## New: Dynamic UI Generator
-
-The **Dynamic UI Generator** is the latest addition to this repository. It demonstrates how to create UI components dynamically based on natural language queries. Instead of predefined templates, the AI analyzes user requests and generates appropriate interactive components.
-
-### Examples:
-- "Who is the best soccer player?" → Select dropdown with player options
-- "Rate your experience" → Star rating component
-- "How much should I budget?" → Slider with dollar amounts
-- "Which languages do you know?" → Checkbox list
-- "Pick your favorite color" → Color picker interface
-
-### Supported Component Types:
-- Select Dropdowns
-- Radio Buttons
-- Checkbox Lists
-- Sliders
-- Star Ratings
-- Button Grids
-- Text Inputs
-- Toggle Switches
-- Color Pickers
+1. [**Dynamic UI Generator**](https://github.com/kafkasl/genUI/tree/main/dynamic_ui) - Generates different UI components on the fly based on user queries
 
 ## Installation
 
@@ -50,46 +20,32 @@ To run these demos locally:
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/kafkasl/genUI.git
-   cd genUI
+   git clone https://github.com/JonasTischer/dynamic-genUI.git
+   cd dynamic-genUI
    ```
 
 2. Install the required dependencies:
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 3. Navigate to any of the demo directories and run:
    ```bash
-   python main.py
+   uv run python main.py
    ```
-
-Each demo consists of just three files:
-- `main.py` - The application code
-- `style.css` - Styling
-- `requirements.txt` - Dependencies
 
 ## Key Concepts
 
 These demos showcase several important concepts:
 
 1. **Hypermedia Controls** - Using HTMX to create interactive elements without complex JavaScript
-2. **The Feedback Loop** - How user interactions flow back to the LLM, which generates new UI components
-3. **Eliminating Contract Coupling** - How the hypermedia approach removes the need for predefined frontend templates
-4. **Progressive Enhancement** - From static visual elements to fully interactive experiences
-5. **Dynamic Component Generation** - Creating appropriate UI components based on user intent
+2. **Eliminating Contract Coupling** - How the hypermedia approach removes the need for predefined frontend templates
+3. **Progressive Enhancement** - From static visual elements to fully interactive experiences
+4. **Dynamic Component Generation** - Creating appropriate UI components based on user intent
 
 ## Article
 
 For a detailed explanation of these concepts and demos, read the full article: [AI is the new UI: Generative UI with FastHTML](https://kafkasl.github.io/genui-post.html)
-
-## Deployment
-
-These demos are deployed using [Plash](https://github.com/AnswerDotAI/plash_cli), a deployment service from Answer.ai.
-
-To deploy your own version:
-1. Create a `plash.env` file with your configuration
-2. Run `plash_deploy`
 
 ## License
 
