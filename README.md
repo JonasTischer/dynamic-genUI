@@ -48,8 +48,7 @@ These demos showcase several important concepts:
 For a detailed explanation of these concepts and demos, read the full article: [AI is the new UI: Generative UI with FastHTML](https://kafkasl.github.io/genui-post.html)
 
 ## Video
-
-[<div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.loom.com/embed/4bf6abf7ae4a4ea48265a9dde305a6a0?sid=b1b56c75-c45c-4f0b-b36a-25d47b688d0a" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>](https://www.loom.com/share/4bf6abf7ae4a4ea48265a9dde305a6a0?sid=ef24c794-7ce4-4392-b3e1-d8d545bdb9cf)
+![Loom](https://www.loom.com/share/4bf6abf7ae4a4ea48265a9dde305a6a0?sid=ef24c794-7ce4-4392-b3e1-d8d545bdb9cf)
 
 ## License
 
