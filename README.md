@@ -1,5 +1,7 @@
 # Generative UI Demos with FastHTML
 
+!! This repo is a fork from this [repo](https://github.com/kafkasl/genUI) by Pol Alvarez Vecino who inspired this work.
+
 This repository contains demos showcasing how to build interactive Generative UI (genUI) applications using FastHTML and Answer.ai libraries.
 
 ## Video
