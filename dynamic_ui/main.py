@@ -54,7 +54,7 @@ def index():
         ),
         Footer()
     )
-    return Titled('🎨 Dynamic Generative UI Assistant', page)
+    return page
 
 # Handle the form submission
 @app.post

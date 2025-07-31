@@ -12,19 +12,14 @@ def load_context(path: str):
         return "FastHTML context file not found. Using basic FastHTML knowledge."
 
 def handle_chat_send(msg: str, messages: list[str] = None):
-    """Handle the form submission for chat messages"""
+    """Handle the form submission for chat messages with conversation context"""
     if not messages:
         messages = []
     messages.append(msg.rstrip())
 
-    context_files = [
-        "llms-ctx-fast-html.txt",
-        "llms-ctx-monster-ui.txt"
-        ]
-
     # Load context from file
-    fasthtml_context = load_context(context_files[0])
-    monsterui_context = load_context(context_files[1])
+    fasthtml_context = load_context("llms-ctx-fast-html.txt")
+    monsterui_context = load_context("llms-ctx-monster-ui.txt")
 
     system_prompt = f"""You are an expert visual UI designer that transforms complex information into beautifully digestible FastHTML/MonsterUI components.
 
@@ -90,7 +85,7 @@ Div(cls="max-w-4xl mx-auto p-6")(
             Div(UkIcon("settings", 20, 20), "The Process", cls="flex items-center gap-3"),
             Steps(
                 LiStep("Light Absorption", cls=StepT.success, data_content="1"),
-                LiStep("Water Splitting", cls=StepT.info, data_content="2"), 
+                LiStep("Water Splitting", cls=StepT.info, data_content="2"),
                 LiStep("CO₂ Fixation", cls=StepT.warning, data_content="3"),
                 LiStep("Glucose Production", cls=StepT.primary, data_content="4"),
                 cls=StepsT.vertical
@@ -165,34 +160,113 @@ Div(cls="max-w-6xl mx-auto p-6")(
 
 Now create a visually stunning, information-rich component for the user's request:"""
 
+
     try:
         client = create_openai_client()
 
-        messages_for_api = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": msg}
-        ]
+        # Build conversation context for API
+        messages_for_api = [{"role": "system", "content": system_prompt}]
+        
+        # Add conversation history (alternating user/assistant)
+        for i, message in enumerate(messages):
+            role = "user" if i % 2 == 0 else "assistant"
+            messages_for_api.append({"role": role, "content": message})
 
         response = get_completion(client, messages_for_api)
-        print(f"LLM Response: {response}")
 
         # Parse and execute the generated FastHTML code
-        try:
-            component = parse_and_execute_component(response)
-            result = [ChatMessage(msg, True)]
-            result.append(ComponentMessage(component))
-            result.append(ChatInput())
-            return tuple(result)
-        except Exception as code_error:
-            print(f"Error executing generated code: {code_error}")
-            # Fall back to text response if code execution fails
-            result = [ChatMessage(msg, True)]
-            result.append(ChatMessage(f"Generated code had an error: {str(code_error)}\n\nRaw response: {response}", False))
-            result.append(ChatInput())
-            return tuple(result)
+        return _try_execute_with_retry(msg, response, messages, max_retries=3)
 
     except Exception as e:
         print(f"Error: {e}")
         return (ChatMessage(msg, True),
                 ChatMessage(f"Sorry, I encountered an error: {str(e)}", False),
                 ChatInput())
+
+def _try_execute_with_retry(original_msg: str, generated_code: str, messages: list[str], max_retries: int = 3, retry_count: int = 0):
+    """Try to execute code with retry mechanism for fixing errors"""
+
+    try:
+        component = parse_and_execute_component(generated_code)
+        success_result = [ChatMessage(original_msg, True)]
+
+        # Add retry indicator if this was a retry
+        if retry_count > 0:
+            success_result.append(ChatMessage(f"✅ Fixed after {retry_count} attempt(s)", False))
+
+        success_result.append(ComponentMessage(component))
+        success_result.append(ChatInput())
+        return tuple(success_result)
+
+    except Exception as code_error:
+        print(f"Error executing generated code (attempt {retry_count + 1}): {code_error}")
+
+        # If we've reached max retries, return the error
+        if retry_count >= max_retries:
+            result = [ChatMessage(original_msg, True)]
+            result.append(ChatMessage(f"❌ Failed after {max_retries + 1} attempts. Final error: {str(code_error)}", False))
+            result.append(ChatMessage("Raw code:", False))
+            result.append(ChatMessage(f"```\n{generated_code}\n```", False))
+            result.append(ChatInput())
+            return tuple(result)
+
+        # Try to get the LLM to fix the error
+        return _retry_with_error_feedback(original_msg, generated_code, str(code_error), messages, retry_count)
+
+def _retry_with_error_feedback(original_msg: str, failed_code: str, error_message: str, messages: list[str], retry_count: int):
+    """Ask LLM to fix the error and retry"""
+
+    # Load context
+    context_files = ["llms-ctx-fast-html.txt", "llms-ctx-monster-ui.txt"]
+    fasthtml_context = load_context(context_files[0])
+    monsterui_context = load_context(context_files[1])
+
+    # Create error-fixing prompt
+    fix_prompt = f"""You are an expert FastHTML/MonsterUI developer. Fix the error in the generated code.
+
+CONTEXT:
+<fasthtml>
+{fasthtml_context}
+</fasthtml>
+
+<monsterui>
+{monsterui_context}
+</monsterui>
+
+ORIGINAL REQUEST: {original_msg}
+
+GENERATED CODE THAT FAILED:
+```
+{failed_code}
+```
+
+ERROR MESSAGE: {error_message}
+
+Please fix the error and return ONLY the corrected FastHTML/MonsterUI component code. Common fixes:
+- For ApexChart errors: Make sure to include the required 'opts' parameter
+- For missing parameters: Check component documentation for required parameters
+- For syntax errors: Check parentheses, brackets, and quotes are properly matched
+- For component errors: Ensure proper component usage as documented
+
+Return ONLY the fixed component code:"""
+
+    try:
+        client = create_openai_client()
+        messages_for_api = [
+            {"role": "system", "content": fix_prompt}
+        ]
+
+        print(f"🔄 Retry attempt {retry_count + 1}: Asking LLM to fix error...")
+        response = get_completion(client, messages_for_api)
+        print(f"🔧 Fix attempt response: {response}")
+
+        # Try executing the fixed code
+        return _try_execute_with_retry(original_msg, response, messages, max_retries=3, retry_count=retry_count + 1)
+
+    except Exception as e:
+        print(f"Error in retry mechanism: {e}")
+        # Fall back to original error display
+        result = [ChatMessage(original_msg, True)]
+        result.append(ChatMessage(f"❌ Retry failed: {str(e)}", False))
+        result.append(ChatInput())
+        return tuple(result)

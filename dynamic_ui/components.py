@@ -3,15 +3,15 @@ from monsterui.all import *
 
 def auto_repair_syntax(code_text):
     """Attempt to automatically repair common syntax errors in LLM-generated code."""
-    
+
     # Remove any stray HTML or XML-like content that sometimes appears
     import re
     code_text = re.sub(r'<[^>]+>', '', code_text)
-    
+
     # Fix unmatched parentheses - count and balance them
     open_parens = code_text.count('(')
     close_parens = code_text.count(')')
-    
+
     if open_parens > close_parens:
         # Add missing closing parentheses
         missing_close = open_parens - close_parens
@@ -23,11 +23,11 @@ def auto_repair_syntax(code_text):
         while extra_close > 0 and code_text.endswith(')'):
             code_text = code_text[:-1]
             extra_close -= 1
-    
+
     # Fix unmatched square brackets
     open_brackets = code_text.count('[')
     close_brackets = code_text.count(']')
-    
+
     if open_brackets > close_brackets:
         missing_close = open_brackets - close_brackets
         code_text += ']' * missing_close
@@ -36,11 +36,11 @@ def auto_repair_syntax(code_text):
         while extra_close > 0 and code_text.endswith(']'):
             code_text = code_text[:-1]
             extra_close -= 1
-    
+
     # Fix unmatched curly braces
     open_braces = code_text.count('{')
     close_braces = code_text.count('}')
-    
+
     if open_braces > close_braces:
         missing_close = open_braces - close_braces
         code_text += '}' * missing_close
@@ -49,10 +49,10 @@ def auto_repair_syntax(code_text):
         while extra_close > 0 and code_text.endswith('}'):
             code_text = code_text[:-1]
             extra_close -= 1
-    
+
     # Fix missing spaces after commas in common patterns
     code_text = re.sub(r',([^\s])', r', \1', code_text)
-    
+
     # Fix common typos in component names
     typo_fixes = {
         'UKIcon': 'UkIcon',
@@ -61,10 +61,10 @@ def auto_repair_syntax(code_text):
         'daisyUI': 'DaisyUI',
         'DaisyUi': 'DaisyUI',
     }
-    
+
     for typo, fix in typo_fixes.items():
         code_text = code_text.replace(typo, fix)
-    
+
     return code_text.strip()
 
 def parse_and_execute_component(code_text):
@@ -112,18 +112,7 @@ def parse_and_execute_component(code_text):
             ast.parse(code_text)
         except SyntaxError as syntax_error:
             print(f"Syntax error in generated code: {syntax_error}")
-            return Div(
-                Div(cls="flex items-center gap-2 mb-2")(
-                    UkIcon("code", 16, 16, cls="text-error"),
-                    Strong("Syntax Error in Generated Code")
-                ),
-                P(f"The LLM generated invalid Python syntax: {str(syntax_error)}", cls=TextPresets.muted_sm),
-                Details(
-                    Summary("View Generated Code"),
-                    Pre(Code(code_text, cls="text-xs"), cls="bg-base-200 p-2 rounded mt-2 max-h-48 overflow-auto")
-                ),
-                cls="alert alert-error p-4 rounded-lg bg-error/10 border border-error/20"
-            )
+            raise syntax_error
 
         print(f"Executing code: {code_text}")
 
@@ -138,59 +127,69 @@ def parse_and_execute_component(code_text):
             # If it fails, it's a complex statement - use exec
             pass
 
-        # Create a local namespace for execution
-        local_namespace = {}
+        # Try to parse and handle the final expression separately
+        import ast
         
+        try:
+            parsed = ast.parse(code_text)
+            statements = parsed.body
+            
+            if statements and isinstance(statements[-1], ast.Expr):
+                # Last statement is an expression - this is likely our component
+                # Execute all but the last statement, then eval the last one
+                if len(statements) > 1:
+                    # Execute function definitions and other statements
+                    setup_code = ast.unparse(ast.Module(body=statements[:-1], type_ignores=[]))
+                    exec(setup_code, globals())
+                
+                # Evaluate the final expression
+                final_expr = ast.unparse(statements[-1].value)
+                result = eval(final_expr, globals())
+                return result
+        except Exception as ast_error:
+            print(f"AST parsing failed: {ast_error}, falling back to standard exec")
+        
+        # Fallback: Create a local namespace for execution
+        local_namespace = {}
+
         # Execute the code directly with full access to imports
         exec(code_text, globals(), local_namespace)
-        
+
         # Look for a return value in the local namespace
-        # Check if there's a function that was defined and called
-        if len(local_namespace) == 1:
-            # If there's exactly one item, it's likely the result
-            result = list(local_namespace.values())[0]
-        elif 'result' in local_namespace:
+        # Check for functions that might have been defined
+        functions = {k: v for k, v in local_namespace.items() if callable(v)}
+        non_functions = {k: v for k, v in local_namespace.items() if not callable(v)}
+        
+        if 'result' in local_namespace:
             # Look for explicit result variable
             result = local_namespace['result']
-        elif any(key.startswith('_') for key in local_namespace.keys()):
-            # Look for variables that might be the result (like function returns)
-            non_underscore_vars = [v for k, v in local_namespace.items() if not k.startswith('_')]
-            if non_underscore_vars:
-                result = non_underscore_vars[0]
-            else:
-                result = list(local_namespace.values())[0] if local_namespace else None
+        elif non_functions:
+            # If there are non-function variables, use the last one
+            result = list(non_functions.values())[-1]
+        elif len(local_namespace) == 1:
+            # If there's exactly one item, it's likely the result
+            result = list(local_namespace.values())[0]
         else:
-            # If multiple variables, try to find the most likely result
             # Look for FastHTML components (objects with __ft__ attribute)
             component_vars = [v for v in local_namespace.values() if hasattr(v, '__ft__') or hasattr(v, 'render')]
             if component_vars:
                 result = component_vars[0]
             else:
-                # Default to the last defined variable
-                result = list(local_namespace.values())[-1] if local_namespace else None
-        
+                result = None
+
         if result is None:
             return Div(
                 P("Code executed successfully but no component was returned", cls=TextPresets.muted_sm),
+                P(f"Found {len(functions)} functions and {len(non_functions)} other variables in namespace", cls="text-xs text-gray-500"),
                 cls="alert alert-info p-4 rounded-lg bg-info/10 border border-info/20"
             )
-            
+
         return result
-        
+
     except Exception as e:
         print(f"Error executing code: {e}")
-        return Div(
-            Div(cls="flex items-center gap-2 mb-2")(
-                UkIcon("alert-triangle", 16, 16, cls="text-warning"),
-                Strong("Component Execution Error")
-            ),
-            P(f"Failed to execute component: {str(e)}", cls=TextPresets.muted_sm),
-            Details(
-                Summary("View Code"),
-                Pre(Code(code_text, cls="text-xs"), cls="bg-base-200 p-2 rounded mt-2 max-h-32 overflow-auto")
-            ),
-            cls="alert alert-warning p-4 rounded-lg bg-warning/10 border border-warning/20"
-        )
+        raise e
+
 
 # Loading message component (shows while generating)
 def LoadingMessage():
@@ -205,22 +204,23 @@ def LoadingMessage():
     )
 
 # Chat message component (renders a chat bubble)
-def ChatMessage(msg, user):
+def ChatMessage(msg, user, **kwargs):
     bubble_class = "chat-bubble-primary" if user else 'chat-bubble-secondary'
     chat_class = "chat-end" if user else 'chat-start'
-    return Div(cls=f"chat {chat_class}")(
+    return Div(cls=f"chat {chat_class}", **kwargs)(
                Div('user' if user else 'assistant', cls="chat-header"),
                Div(msg, cls=f"chat-bubble {bubble_class}"),
                Hidden(msg, name="messages")
            )
 
 # Component message (renders generated UI components)
-def ComponentMessage(component):
-    return Div(cls="chat chat-start")(
+def ComponentMessage(component, context_msg="Generated interactive component", **kwargs):
+    return Div(cls="chat chat-start", **kwargs)(
         Div('assistant', cls="chat-header"),
         Div(cls="chat-bubble chat-bubble-secondary p-1")(
-            Div(component, cls="bg-base-100 rounded-lg border p-4")
-        )
+            Div(component, cls="bg-base-100 rounded-lg border p-4 interactive-component")
+        ),
+        Hidden(context_msg, name="messages")
     )
 
 # The input field for the user message. Also used to clear the
