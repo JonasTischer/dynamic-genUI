@@ -5,9 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "claudette>=0.1.11",
     "fastcore>=1.8.2",
     "monsterui>=1.0.21",
+    "openai>=1.98.0",
     "python-dotenv>=1.1.0",
     "python-fasthtml>=0.12.19",
 ]
