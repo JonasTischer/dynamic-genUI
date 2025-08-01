@@ -8,6 +8,7 @@ dependencies = [
     "fastcore>=1.8.2",
     "monsterui>=1.0.21",
     "openai>=1.98.0",
+    "plash-cli>=0.2.2",
     "python-dotenv>=1.1.0",
     "python-fasthtml>=0.12.19",
 ]

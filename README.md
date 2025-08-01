@@ -51,7 +51,7 @@ Replace `your_openrouter_api_key` with your actual OpenRouter API key. You can o
 
 4. Navigate to any of the demo directories and run:
    ```bash
-   uv run python dyunamic_ui/main.py
+   uv run python main.py
    ```
 
 ## Key Concepts

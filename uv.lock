@@ -139,6 +139,7 @@ dependencies = [
     { name = "fastcore" },
     { name = "monsterui" },
     { name = "openai" },
+    { name = "plash-cli" },
     { name = "python-dotenv" },
     { name = "python-fasthtml" },
 ]
@@ -148,6 +149,7 @@ requires-dist = [
     { name = "fastcore", specifier = ">=1.8.2" },
     { name = "monsterui", specifier = ">=1.0.21" },
     { name = "openai", specifier = ">=1.98.0" },
+    { name = "plash-cli", specifier = ">=0.2.2" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "python-fasthtml", specifier = ">=0.12.19" },
 ]
@@ -342,6 +344,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a1/d4/1fc4078c65507b51b96ca8f8c3ba19e6a61c8253c72794544580a7b6c24d/packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f", size = 165727 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/20/12/38679034af332785aac8774540895e234f4d07f7545804097de4b666afd8/packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484", size = 66469 },
+]
+
+[[package]]
+name = "plash-cli"
+version = "0.2.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "fastcore" },
+    { name = "httpx" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a9/00/47add504fe3d438cab1ea8124ac90222e3a1ca94b06e264dc0e5a50cad6f/plash_cli-0.2.2.tar.gz", hash = "sha256:f4c7fe75baec91f72b7c1bc8eebbf9d1b6b5b0658c2c10f586b1192ce814a5f2", size = 17680 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ef/4a/6a93aa1753df6597f0c51efc87b01d9ff387fc6680fce15678523190403d/plash_cli-0.2.2-py3-none-any.whl", hash = "sha256:6ed2af218e00f69c10145ecdfcb9948a5fa0a46b7db46406474090d3142b15b5", size = 14897 },
 ]
 
 [[package]]
