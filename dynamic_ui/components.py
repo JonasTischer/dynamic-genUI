@@ -114,7 +114,7 @@ def parse_and_execute_component(code_text):
             print(f"Syntax error in generated code: {syntax_error}")
             raise syntax_error
 
-        print(f"Executing code: {code_text}")
+        print(f"Executing code")
 
         # Determine if this is a simple expression or complex statement
         try:
@@ -129,11 +129,11 @@ def parse_and_execute_component(code_text):
 
         # Try to parse and handle the final expression separately
         import ast
-        
+
         try:
             parsed = ast.parse(code_text)
             statements = parsed.body
-            
+
             if statements and isinstance(statements[-1], ast.Expr):
                 # Last statement is an expression - this is likely our component
                 # Execute all but the last statement, then eval the last one
@@ -141,14 +141,14 @@ def parse_and_execute_component(code_text):
                     # Execute function definitions and other statements
                     setup_code = ast.unparse(ast.Module(body=statements[:-1], type_ignores=[]))
                     exec(setup_code, globals())
-                
+
                 # Evaluate the final expression
                 final_expr = ast.unparse(statements[-1].value)
                 result = eval(final_expr, globals())
                 return result
         except Exception as ast_error:
             print(f"AST parsing failed: {ast_error}, falling back to standard exec")
-        
+
         # Fallback: Create a local namespace for execution
         local_namespace = {}
 
@@ -159,7 +159,7 @@ def parse_and_execute_component(code_text):
         # Check for functions that might have been defined
         functions = {k: v for k, v in local_namespace.items() if callable(v)}
         non_functions = {k: v for k, v in local_namespace.items() if not callable(v)}
-        
+
         if 'result' in local_namespace:
             # Look for explicit result variable
             result = local_namespace['result']
@@ -214,12 +214,22 @@ def ChatMessage(msg, user, **kwargs):
            )
 
 # Component message (renders generated UI components)
-def ComponentMessage(component, context_msg="Generated interactive component", **kwargs):
+def ComponentMessage(component, context_msg="Generated interactive component", generation_info=None, **kwargs):
+    content = [
+        Div(component, cls="bg-base-100 rounded-lg border p-4 interactive-component")
+    ]
+
+    # Add generation information if provided
+    if generation_info:
+        info_display = Div(cls="mt-2 text-xs text-gray-500 flex gap-4")(
+            Span(f"Generated in {generation_info['total_time']:.2f}s"),
+            Span(f"{generation_info['tokens']} tokens")
+        )
+        content.append(info_display)
+
     return Div(cls="chat chat-start", **kwargs)(
         Div('assistant', cls="chat-header"),
-        Div(cls="chat-bubble chat-bubble-secondary p-1")(
-            Div(component, cls="bg-base-100 rounded-lg border p-4 interactive-component")
-        ),
+        Div(cls="chat-bubble chat-bubble-secondary p-1")(*content),
         Hidden(context_msg, name="messages")
     )
 

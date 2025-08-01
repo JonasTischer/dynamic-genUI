@@ -1908,7 +1908,7 @@ class CustomHeaderMiddleware(BaseHTTPMiddleware):
 
 - `class StepsT(Enum)`
     Options for Steps
-    Members: vertical, horizonal
+    Members: vertical, horizontal
 
 
 - `class StepT(Enum)`

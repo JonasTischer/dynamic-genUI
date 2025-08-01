@@ -1,4 +1,5 @@
 import os
+import datetime
 from client import create_openai_client, get_completion
 from components import ChatMessage, ComponentMessage, ChatInput, parse_and_execute_component
 
@@ -18,19 +19,17 @@ def handle_chat_send(msg: str, messages: list[str] = None):
     messages.append(msg.rstrip())
 
     # Load context from file
-    fasthtml_context = load_context("llms-ctx-fast-html.txt")
-    monsterui_context = load_context("llms-ctx-monster-ui.txt")
+    components_context = load_context("llms-ctx-components.txt")
 
     system_prompt = f"""You are an expert visual UI designer that transforms complex information into beautifully digestible FastHTML/MonsterUI components.
 
-CONTEXT:
-<fasthtml>
-{fasthtml_context}
-</fasthtml>
+This UI component should directly address or visualize the user's request (e.g., if they ask for "weather", create a weather card UI).
+The generated UI should be visually appealing, creative where it makes sense for visualizations, modern, and functional, and add animations where it makes sense, i.e. for a weather app you may animate rainfall.
+For any UI you generate that might need an API key, i.e. weather, just simulate the effect, we do not need these to be wired up.
+If generating UI is not appropriate for the user's query, or if you are unable to fulfill the UI request, you may respond with a polite text message explaining why.
 
-<monsterui>
-{monsterui_context}
-</monsterui>
+# COMPONENT REFERENCE:
+{components_context}
 
 🎯 MISSION: Transform the user's request into a visually rich, interactive component that makes complex concepts easy to understand and engage with.
 
@@ -41,13 +40,15 @@ CONTEXT:
 • Visual Cues: Employ icons, colors, badges, and visual indicators to communicate meaning instantly
 • Cognitive Load Reduction: Present information in bite-sized, organized pieces
 • Interactive Elements: Make content explorable with hover states, expandable sections, and clear navigation
+• Use MonsterUI components for the best user experience
+• Use TailwindCSS for styling
 
 🎨 COMPONENT SELECTION GUIDE:
 
 For EXPLANATIONS/CONCEPTS → Use Accordion with expandable sections, each with icons and clear headings
 For PROCESSES/TUTORIALS → Use Steps with visual progression indicators and detailed descriptions
 For COMPARISONS → Use side-by-side cards or tables with clear visual differentiators
-For DATA/STATISTICS → Use ApexChart for numerical data, progress bars for percentages
+For DATA/STATISTICS → Use ApexChart(opts={...}) with proper options object, Progress components for percentages
 For TIMELINES/HISTORY → Use Steps (vertical) or timeline cards with dates prominently displayed
 For FORMS/INPUT → Use well-structured forms with clear labels and validation hints
 For LISTS/CATALOGS → Use Grid with cards containing images, titles, and key info
@@ -56,10 +57,31 @@ For COMPLEX INFO → Use tabbed interfaces or accordion patterns
 🚀 TECHNICAL REQUIREMENTS:
 1. Output ONLY a single FastHTML/MonsterUI component expression
 2. NO imports, app setup, routes, or serve() calls
-3. Use rich styling with DaisyUI classes (cards, shadows, gradients, spacing)
+3. Use rich styling with DaisyUI and TailwindCSS classes (cards, shadows, gradients, spacing)
 4. Include visual elements: UkIcon, DiceBearAvatar, PicSumImg where appropriate
 5. Make it responsive with proper Grid columns and spacing
 6. Use semantic colors and typography for better readability
+
+⚠️ CRITICAL COMPONENT USAGE - AVOID THESE ERRORS:
+
+❌ WRONG: ApexChart() - Missing required 'opts' parameter
+✅ CORRECT: ApexChart(opts={{"chart": {{"type": "bar"}}, "series": [{{"name": "Data", "data": [10, 20, 30]}}]}})
+
+❌ WRONG: Badge("text") - Badge doesn't exist in FastHTML/MonsterUI
+✅ CORRECT: Use Alert, Span with classes, or UkIcon for badges/indicators
+
+❌ WRONG: Card(H3("Title"), P("Content")) - Wrong Card syntax
+✅ CORRECT: Card(cls="p-4")(H3("Title"), P("Content"))
+
+
+COMPONENT SYNTAX RULES:
+• ApexChart: ALWAYS include opts parameter with chart config
+• Cards: Use Card(cls="...")(content) format
+• Badges/Labels: Use Alert, Span + classes, or colored Div
+• Charts: Only ApexChart exists, requires opts={{"chart": {{...}}, "series": [...]}}
+• Icons: UkIcon("icon-name", width, height) format
+• Progress: Progress(value=X, max=100) format
+• No Badge component exists - use alternatives
 
 🌟 ELEVATED EXAMPLES:
 
@@ -106,7 +128,7 @@ Div(cls="max-w-4xl mx-auto p-6")(
 User: "Compare Python vs JavaScript"
 Output:
 Div(cls="max-w-6xl mx-auto p-6")(
-    H1("Python vs JavaScript", cls="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-yellow-500 bg-clip-text text-transparent"),
+    H1("Python vs JavaScript", cls="text-3xl font-bold text-center mb-8"),
     Grid(
         Card(cls="bg-blue-50 border-2 border-blue-200 p-6")(
             Div(cls="flex items-center gap-3 mb-4")(
@@ -119,17 +141,9 @@ Div(cls="max-w-6xl mx-auto p-6")(
                 ),
                 Div(cls="flex items-center gap-2 text-green-600")(
                     UkIcon("check", 16, 16), Strong("Great for data science")
-                ),
-                Div(cls="flex items-center gap-2 text-green-600")(
-                    UkIcon("check", 16, 16), Strong("Extensive libraries")
-                ),
-                Div(cls="flex items-center gap-2 text-red-600")(
-                    UkIcon("x", 16, 16), Strong("Slower execution")
                 )
             ),
-            Div(cls="mt-6 p-3 bg-blue-100 rounded")(
-                Strong("Best for: "), "AI, Data Science, Backend, Automation"
-            )
+            Alert("Best for: AI, Data Science, Backend", cls=AlertT.info)
         ),
         Card(cls="bg-yellow-50 border-2 border-yellow-200 p-6")(
             Div(cls="flex items-center gap-3 mb-4")(
@@ -142,46 +156,90 @@ Div(cls="max-w-6xl mx-auto p-6")(
                 ),
                 Div(cls="flex items-center gap-2 text-green-600")(
                     UkIcon("check", 16, 16), Strong("Interactive UIs")
-                ),
-                Div(cls="flex items-center gap-2 text-green-600")(
-                    UkIcon("check", 16, 16), Strong("Fast execution")
-                ),
-                Div(cls="flex items-center gap-2 text-red-600")(
-                    UkIcon("x", 16, 16), Strong("Complex syntax")
                 )
             ),
-            Div(cls="mt-6 p-3 bg-yellow-100 rounded")(
-                Strong("Best for: "), "Web Development, Mobile Apps, Real-time Apps"
-            )
+            Alert("Best for: Web Development, Mobile Apps", cls=AlertT.warning)
         ),
         cols=2
     )
 )
 
-Now create a visually stunning, information-rich component for the user's request:"""
+User: "Show sales data chart"
+Output:
+Div(cls="max-w-4xl mx-auto p-6")(
+    H2("Sales Performance", cls="text-2xl font-bold mb-6"),
+    ApexChart(opts={{
+        "chart": {{"type": "line", "height": 350}},
+        "series": [{{"name": "Sales", "data": [30, 40, 35, 50, 49, 60, 70, 91, 125]}}],
+        "xaxis": {{"categories": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]}},
+        "stroke": {{"curve": "smooth"}},
+        "title": {{"text": "Monthly Sales Trends"}}
+    }})
+)
+
+DO NOT create endpoints, routes, or serve() calls. ONLY return the FastHTML/MonsterUI component code.
+Now create a visually stunning, information-rich component for the user's request."""
 
 
     try:
+        import time
+
+
         client = create_openai_client()
 
         # Build conversation context for API
         messages_for_api = [{"role": "system", "content": system_prompt}]
-        
+
         # Add conversation history (alternating user/assistant)
         for i, message in enumerate(messages):
             role = "user" if i % 2 == 0 else "assistant"
             messages_for_api.append({"role": role, "content": message})
 
-        response = get_completion(client, messages_for_api)
+        import time
+        start_time = time.time()
+        response_data = get_completion(client, messages_for_api)
+        result = _try_execute_with_retry(msg, response_data["content"], messages, max_retries=3)
+        total_time = time.time() - start_time
 
-        # Parse and execute the generated FastHTML code
-        return _try_execute_with_retry(msg, response, messages, max_retries=3)
+
+        generation_info = {
+            "total_time": total_time,
+            "tokens": response_data["tokens"]["completion"]
+        }
+
+        return _add_timing_to_result(result, generation_info)
 
     except Exception as e:
         print(f"Error: {e}")
         return (ChatMessage(msg, True),
                 ChatMessage(f"Sorry, I encountered an error: {str(e)}", False),
                 ChatInput())
+
+def _add_timing_to_result(result, generation_info):
+    """Add generation information to the component result"""
+    if isinstance(result, tuple) and len(result) >= 2:
+        # Find the ComponentMessage in the result tuple and update it
+        result_list = list(result)
+        for i, item in enumerate(result_list):
+            # Look for ComponentMessage by checking its structure
+            if (hasattr(item, 'children') and len(item.children) >= 3 and
+                hasattr(item.children[1], 'children') and
+                any('interactive-component' in str(child) for child in item.children[1].children if hasattr(child, 'attrs'))):
+
+                # Extract the original component from the ComponentMessage
+                component = item.children[1].children[0].children[0]
+
+                # Create new ComponentMessage with generation info
+                from components import ComponentMessage
+                result_list[i] = ComponentMessage(
+                    component,
+                    generation_info=generation_info,
+                    context_msg="Generated interactive component"
+                )
+                break
+        return tuple(result_list)
+
+    return result
 
 def _try_execute_with_retry(original_msg: str, generated_code: str, messages: list[str], max_retries: int = 3, retry_count: int = 0):
     """Try to execute code with retry mechanism for fixing errors"""
@@ -217,21 +275,13 @@ def _retry_with_error_feedback(original_msg: str, failed_code: str, error_messag
     """Ask LLM to fix the error and retry"""
 
     # Load context
-    context_files = ["llms-ctx-fast-html.txt", "llms-ctx-monster-ui.txt"]
-    fasthtml_context = load_context(context_files[0])
-    monsterui_context = load_context(context_files[1])
+    components_context = load_context("llms-ctx-components.txt")
 
     # Create error-fixing prompt
     fix_prompt = f"""You are an expert FastHTML/MonsterUI developer. Fix the error in the generated code.
 
-CONTEXT:
-<fasthtml>
-{fasthtml_context}
-</fasthtml>
-
-<monsterui>
-{monsterui_context}
-</monsterui>
+# COMPONENT REFERENCE:
+{components_context}
 
 ORIGINAL REQUEST: {original_msg}
 
@@ -243,10 +293,21 @@ GENERATED CODE THAT FAILED:
 ERROR MESSAGE: {error_message}
 
 Please fix the error and return ONLY the corrected FastHTML/MonsterUI component code. Common fixes:
-- For ApexChart errors: Make sure to include the required 'opts' parameter
-- For missing parameters: Check component documentation for required parameters
-- For syntax errors: Check parentheses, brackets, and quotes are properly matched
-- For component errors: Ensure proper component usage as documented
+
+CRITICAL FIXES:
+- ApexChart MUST have opts parameter: ApexChart(opts={{"chart": {{"type": "bar"}}, "series": [...]}})
+- Badge component does NOT exist - use Alert, Span with classes, or colored Div instead
+- Card syntax: Card(cls="...")(content) not Card(content, cls="...")
+- Button cls error: Never pass cls as both positional and keyword - use Button("Text", cls=ButtonT.primary)
+- Duplicate cls error: Never pass cls parameter twice - merge into single cls="class1 class2"
+- Assignment in expression: Don't use = in expressions - use separate variables or data attributes
+- Progress needs value/max: Progress(value=75, max=100)
+- UkIcon needs width/height: UkIcon("name", 16, 16)
+
+SYNTAX FIXES:
+- Check parentheses, brackets, and quotes are properly matched
+- Ensure proper component parameters and structure
+- Use correct DaisyUI/TailwindCSS class names
 
 Return ONLY the fixed component code:"""
 
@@ -257,7 +318,8 @@ Return ONLY the fixed component code:"""
         ]
 
         print(f"🔄 Retry attempt {retry_count + 1}: Asking LLM to fix error...")
-        response = get_completion(client, messages_for_api)
+        response_data = get_completion(client, messages_for_api)
+        response = response_data["content"]
         print(f"🔧 Fix attempt response: {response}")
 
         # Try executing the fixed code

@@ -33,7 +33,7 @@
 
 - `class StepsT(Enum)`
     Options for Steps
-    Members: vertical, horizonal
+    Members: vertical, horizontal
 
 
 - `class StepT(Enum)`
@@ -1595,4 +1595,4 @@ def index():
                     Li(cls="uk-active")(profile_form(),
                     *map(Li, [account_form(), appearance_form(), notifications_form(), display_form()])))))
 
-serve()</doc></examples></project>
+serve()</doc></examples><optional><doc title="Accordion | Link" desc="Internal Server Error">Internal Server Error</doc><doc title="Button | Link" desc="Internal Server Error">Internal Server Error</doc><doc title="Cards" desc="Internal Server Error">Internal Server Error</doc><doc title="Charts" desc="Internal Server Error">Internal Server Error</doc><doc title="Containers" desc="Internal Server Error">Internal Server Error</doc><doc title="Dividers" desc="Internal Server Error">Internal Server Error</doc><doc title="Forms" desc="Internal Server Error">Internal Server Error</doc><doc title="Html" desc="Internal Server Error">Internal Server Error</doc><doc title="Icons | Images" desc="Internal Server Error">Internal Server Error</doc><doc title="Layout" desc="Internal Server Error">Internal Server Error</doc><doc title="Lightbox" desc="Internal Server Error">Internal Server Error</doc><doc title="Lists" desc="Internal Server Error">Internal Server Error</doc><doc title="Loading" desc="Internal Server Error">Internal Server Error</doc><doc title="Markdown" desc="Internal Server Error">Internal Server Error</doc><doc title="Modals" desc="Internal Server Error">Internal Server Error</doc><doc title="Navigation" desc="Internal Server Error">Internal Server Error</doc><doc title="Notifications" desc="Internal Server Error">Internal Server Error</doc><doc title="Sliders" desc="Internal Server Error">Internal Server Error</doc><doc title="Steps" desc="Internal Server Error">Internal Server Error</doc><doc title="Tables" desc="Internal Server Error">Internal Server Error</doc><doc title="Theme | Headers" desc="Internal Server Error">Internal Server Error</doc><doc title="Typography" desc="Internal Server Error">Internal Server Error</doc><doc title="Layout" desc="MonsterUI Page Layout Guide">Internal Server Error</doc><doc title="Spacing" desc="Padding &amp; Margin &amp; Spacing, Oh my! (MonsterUI Spacing Guide)">Internal Server Error</doc></optional></project>

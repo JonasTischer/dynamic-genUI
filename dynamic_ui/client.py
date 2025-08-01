@@ -26,4 +26,14 @@ def get_completion(client: OpenAI, messages: list, tools=None):
         kwargs["tools"] = tools
 
     response = client.chat.completions.create(**kwargs)
-    return response.choices[0].message.content
+    
+    # Return both content and usage information
+    usage = response.usage
+    return {
+        "content": response.choices[0].message.content,
+        "tokens": {
+            "prompt": usage.prompt_tokens if usage else 0,
+            "completion": usage.completion_tokens if usage else 0,
+            "total": usage.total_tokens if usage else 0
+        }
+    }
