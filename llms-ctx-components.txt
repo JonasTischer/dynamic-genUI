@@ -564,7 +564,9 @@ Accordion(
 
 8. **No assignment in expressions**: Don't use `=` in component expressions - use data attributes or separate variables
 
-9. **Styling**: Use DaisyUI and TailwindCSS classes for styling (e.g., `cls="bg-blue-50 p-4 rounded-lg"`)
+9. **Footer**: Use standard HTML `Footer` not styled Footer - `Footer(*content)` doesn't accept `cls` parameter
+
+10. **Styling**: Use DaisyUI and TailwindCSS classes for styling (e.g., `cls="bg-blue-50 p-4 rounded-lg"`)
 
 ## Common Patterns
 

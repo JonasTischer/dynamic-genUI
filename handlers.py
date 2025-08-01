@@ -301,6 +301,7 @@ CRITICAL FIXES:
 - Button cls error: Never pass cls as both positional and keyword - use Button("Text", cls=ButtonT.primary)
 - Duplicate cls error: Never pass cls parameter twice - merge into single cls="class1 class2"
 - Assignment in expression: Don't use = in expressions - use separate variables or data attributes
+- Footer cls error: Footer() doesn't accept cls parameter - use standard HTML Footer(*content)
 - Progress needs value/max: Progress(value=75, max=100)
 - UkIcon needs width/height: UkIcon("name", 16, 16)
 

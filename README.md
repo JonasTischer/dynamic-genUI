@@ -62,7 +62,7 @@ These demos showcase several important concepts:
 
 ## Article
 
-For a detailed explanation of these concepts and demos, read the full article: [AI is the new UI: Generative UI with FastHTML](https://kafkasl.github.io/genui-post.html)
+For a detailed explanation of these concepts and demos, read the full article: [AI is the new UI: Generative UI with FastHTML](https://medium.com/@pol.avec/ai-is-the-new-ui-generative-ui-with-fasthtml-e8cfcc98e5b5)
 
 
 ## License
