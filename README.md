@@ -17,13 +17,6 @@ Generative UI extends the concept of Generative AI beyond text and images to cre
 
 Today's AI interfaces are predominantly text-based and feel clunky compared to traditional apps. These demos show how we can transition from basic text-based chat into rich interactive experiences with buttons and visual elements - all in less few lines of code using FastHTML and Answer.ai libraries.
 
-## Demo
-
-This repository contains one main demo
-
-1. [**Dynamic UI Generator**](https://github.com/kafkasl/genUI/tree/main/dynamic_ui) - Generates different UI components on the fly based on user queries
-
-
 
 ## Installation
 
@@ -37,11 +30,15 @@ To run these demos locally:
    git clone https://github.com/JonasTischer/dynamic-genUI.git
    cd dynamic-genUI
    ```
-2. Create a `.env` file in the root directory with the following content:
+2. Copy the .env.example file to .env and set your OpenRouter API key:
+   ```bash
+   cp .env.example .env
+   ```
 
-```plaintext
-OPENROUTER_API_KEY=your_openrouter_api_key
-```
+   Open the `.env` file and add your OpenRouter API key:
+   ```plaintext
+   OPENROUTER_API_KEY=your_openrouter_api_key
+   ```
 Replace `your_openrouter_api_key` with your actual OpenRouter API key. You can obtain one from [OpenRouter](https://openrouter.ai/).
 
 3. Install the required dependencies:
