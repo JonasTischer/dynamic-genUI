@@ -190,8 +190,9 @@ Now create a visually stunning, information-rich component for the user's reques
         # Build conversation context for API
         messages_for_api = [{"role": "system", "content": system_prompt}]
 
-        # Add conversation history (alternating user/assistant)
-        for i, message in enumerate(messages):
+        # Add conversation history (alternating user/assistant) - keep only last 10 messages
+        recent_messages = messages[-10:] if len(messages) > 10 else messages
+        for i, message in enumerate(recent_messages):
             role = "user" if i % 2 == 0 else "assistant"
             messages_for_api.append({"role": role, "content": message})
 
